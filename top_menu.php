@@ -1,0 +1,61 @@
+<?php 
+	// panggil file database.php utk koneksi ke db
+	require_once "config/database.php";
+
+	// query utk tampilkan data dr tabel  user
+	$query = mysqli_query($mysqli, "SELECT id_user, nama_user, foto, hak_akses FROM tb_user WHERE id_user='$_SESSION[id_user]'") or die('Ada Kesalahan pada query tampil User: '.mysql_error($mysqli));
+
+	// tmpilkan data
+	$data = mysqli_fetch_assoc($query);
+ ?>
+
+ <li class="dropdown user user-menu">
+ 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+ 		
+ 		<?php 
+ 			if($data['foto']=="") { ?>
+ 			<img src="images/user/user-default.png" class="user-image" alt="user Image" />
+ 		<?php 
+ 		}
+ 		else {?>
+			<img src="images/user/<?php echo $data['foto']; ?>" class="user-image" alt="User Image" />
+		<?php 
+		}
+ 		?>
+ 		
+
+ 		<span class="hidden-xs"><?php echo $data['nama_user']; ?><i style="margin-left: 5px" class="fa fa-angle-down"></i></span>
+ 		</a>
+ 		<ul class="dropdown-menu">
+ 			<!-- user image -->
+ 			<li class="user-header">
+ 				
+ 				<?php 
+ 					if ($data['foto']=="") {?>
+ 					<img src="images/user/user-default.png" class="img-circle" alt="User Image" />
+ 				<?php 
+ 				}
+ 				else { ?>
+ 					<img src="images/user/<?php echo $data['foto']; ?>" class="img-circle" alt="User Image" />
+ 				<?php 
+ 				}
+ 				 ?>
+
+ 				 <p>
+ 				 	<?php echo $data['nama_user']; ?>
+ 				 	<small><?php echo $data['hak_akses']; ?></small>
+ 				 </p>
+ 			</li>
+
+ 			<!-- menu footer -->
+ 			<li class="user-footer">
+ 				<div class="pull-left">
+ 					<a style="width:80px" href="?module=profil" class="btn btn-default btn-flat">Profil</a>
+ 				</div>
+
+ 				<div class="pull-right">
+ 					<a style="width: 80px" data-toggle="modal" href="#logout" class="btn btn-default btn-flat">Keluar</a>
+ 				</div>
+ 			</li>
+ 		</ul>
+ </li>
