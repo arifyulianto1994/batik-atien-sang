@@ -56,6 +56,14 @@
 				var total 			= parseInt(jumlah_masuk) * parseInt(harga);
 				$("#sub_total").val(total);
 			});
+
+			var kode = $('#kd_transaksi').val();
+			
+			$('#tabel-list-produk').DataTable( {
+				"processing": true,
+				"serverSide": true,
+				"ajax": "ajax.php"
+			} );
 		});
 
 </script>
@@ -74,11 +82,12 @@
 				type: 'post',
 				success: function(response){
 					if (response) {
-						location.reload();
+						$('#tabel-list-produk').ajax.reload();
 					}
 				}
 			})
-		})	});
+		})	
+	});
 
  </script>
 
@@ -130,7 +139,7 @@
 								 <div class="form-group">
 								 	<label class="col-sm-2 control-label">Kode Transaksi</label>
 								 	<div class="col-sm-5">
-								 		<input type="text" class="form-control" name="kd_transaksi" value="<?php echo $kd_transaksi; ?>" readonly required>
+								 		<input type="text" id="kd_transaksi" class="form-control" name="kd_transaksi" value="<?php echo $kd_transaksi; ?>" readonly required>
 								 	</div>
 								 </div>
 
@@ -243,7 +252,7 @@
 				<div class="col-md-12">
 					<div class="box box-primary">
 						<div class="box-body">
-							<table class="table table-bordered table-striped table-hover">
+							<table id="tabel-list-produk" class="table table-bordered table-striped table-hover dataTable">
 								<!-- tampilan tabel header -->
 								<thead>
 									<tr>
@@ -256,36 +265,8 @@
 									</tr>
 								</thead>
 
-								<tbody>
-									<?php 
-										$no =1;
-										// query utk tampilkan data dr tabel pakaian
-										$query = mysqli_query($mysqli, "SELECT a.tanggal_masuk, a.jumlah_masuk, a.sub_total, b.nama_barang
-																		FROM detail_masuk as a INNER JOIN tb_pakaian as b ON a.kd_barang = b.kd_barang
-																		ORDER BY a.kd_transaksi DESC") or die('Ada kesalahan pada query tampil data Barang masuk: '.mysqli_error($mysqli));
+								<tbody id="">
 
-										// tampilkan data
-										while ($data = mysqli_fetch_assoc($query)) {
-											$tanggal = $data['tanggal_masuk'];
-											$exp = explode('-',$tanggal);
-											$tanggal_masuk = $exp[2]."-".$exp[1]."-".$exp[0];
-									?>
-
-											<!-- // tampilkan isi tabel dr database ke tbl di app -->
-											<tr>
-												<td width='30' class='center'><?php echo $no ?></td>
-												<td width='80' class='center'><?php echo $data['tanggal_masuk'] ?></td>
-												<td width='100' class='center'><?php echo $data['nama_barang'] ?></td>
-												<td width='80' class='center'><?php echo $data['jumlah_masuk'] ?></td>
-												<td width='80' class='center'><?php echo number_format($data['sub_total'],0,',','.') ?></td>
-												<td class='center' width='80'>
-													<div>
-														<a data-toggle='tooltip' data-placement='top' title='Hapus' style='margin-right:5px' class='btn btn-danger btn-sm' href='?module=form_barang_masuk&form=add'>
-															<i style='color:#fff' class='fa fa-times'></i>
-														</a>
-													</div>
-												</td>
-									<?php $no++; } ?>
 								</tbody>
 							</table>
 						</div>

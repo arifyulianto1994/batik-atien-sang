@@ -43,7 +43,21 @@
 			// cek query
 			if($query1){
 				// jika berhasil tampilkan pesan berhasil simpandata
-				echo true;
+				$nomor 	= 0; 
+				$output = "";
+
+				$output .= "<tr>";
+					$output .= "<td>".$nomor."</td>";
+					$output .= "<td>".$tanggal_masuk."</td>";
+					$output .= "<td>".$kd_barang."</td>";
+					$output .= "<td>".$jumlah_masuk."</td>";
+					$output .= "<td>".$sub_total."</td>";
+					$output .= "<td>
+									<button class='btn btn-danger'><i class='glyphicon glyphicon-remove'></i></button>
+								</td>";
+				$output .= "</tr>";
+
+				echo $output;
 			}
 		}
 
