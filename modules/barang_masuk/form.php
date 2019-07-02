@@ -55,9 +55,29 @@
  	
 	$(document).ready(function() {
 
-		var kode = "TM-2019-0000001";
+		var kode = $('#kd_transaksi').val();
+
+		// load data total bayar
+		let tunai = 0;
+		$('#total').prop('readonly', true).val(tunai);
+
+		$.ajax({
+			url: "modules/barang_masuk/proses.php",
+			type: "post",
+			data: {id: kode},
+			success: function(response){
+				if (response) {
+					tunai = tunai + parseInt(response);
+					$('#total').val(tunai);
+				}
+			}
+		})
 
 		$('#table-keranjang').DataTable( {
+			"bFilter": false,
+			"bPaginate": false,
+			"bSort": false,
+			"bInfo": false,
             "processing": true,
             "serverSide": true,
             "ajax": {
@@ -85,9 +105,8 @@
 			var jumlah_masuk 	= $("#jumlah_masuk").val();
 			var harga 			= $("#harga").val().replace(/\./g,'');
 			var total 			= parseInt(jumlah_masuk) * parseInt(harga);
-			$("#sub_total").val(total);
+			$("#sub_total").val(formatRupiah(total.toString(), ''));
 		});
-
 		
 		$('#tambah').click(function(e){
 			e.preventDefault();
@@ -98,13 +117,15 @@
 				data: dataForm,
 				type: 'post',
 				success: function(response){
-					if (response > 0) {
 						$('#table-keranjang').DataTable().ajax.reload();
-					}
+						tunai = parseInt(response);
+						$('#total').val(tunai);
 				}
 			})
 		})
+		
 	});
+	 
 
 	function hapus(id){
 		var id_keranjang = id;
@@ -119,6 +140,24 @@
 				}
 			}
 		})
+	}
+
+	/* Fungsi formatRupiah */
+	function formatRupiah(angka, prefix){
+		var number_string = angka.replace(/[^,\d]/g, '').toString(),
+		split   		= number_string.split(','),
+		sisa     		= split[0].length % 3,
+		rupiah     		= split[0].substr(0, sisa),
+		ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+		// tambahkan titik jika yang di input sudah menjadi angka ribuan
+		if(ribuan){
+			separator = sisa ? '.' : '';
+			rupiah += separator + ribuan.join('.');
+		}
+
+		rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+		return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
 	}
 
  </script>
@@ -291,6 +330,34 @@
 									</tr>
 								</thead>
 							</table>
+							<table class="table table-bordered table-striped table-hover text-center">
+								<!-- tampilan tabel header -->
+								<thead>
+									<tr>
+										<th colspan="4" class="text-right">Total</th>
+										<th>
+											<input type="text" class="form-control" id="total" name="total" readonly="readonly">
+										</th>
+									</tr>
+									<tr>
+										<th colspan="4">Tunai</th>
+										<th> 
+											<input type="text" class="form-control" id="tunai" name="tunai">
+										</th>
+									</tr>
+									<tr>
+										<th colspan="4">Kembali</th>
+										<th>
+											<input type="text" class="form-control" id="kembali" name="kembali" readonly="readonly">
+										</th>
+									</tr>
+								</thead>
+							</table>
+							<div class="row">
+								<div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 text-right">
+									<input type="submit" class="btn btn-success btn-submit" id="bayar" value="Bayar">	
+								</div>
+							</div>
 						</div>
 					</div>
 			 	</div>

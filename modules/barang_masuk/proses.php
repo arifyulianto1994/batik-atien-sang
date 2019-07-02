@@ -28,7 +28,7 @@
 			$kd_supplier			= mysqli_real_escape_string($mysqli, trim($_POST['kd_supplier']));
 			$jumlah_masuk			= mysqli_real_escape_string($mysqli, trim($_POST['jumlah_masuk']));
 			$harga					= str_replace(".", "", mysqli_real_escape_string($mysqli, trim($_POST['harga'])));
-			$sub_total				= mysqli_real_escape_string($mysqli, trim($_POST['sub_total']));
+			$sub_total				= str_replace(".", "", mysqli_real_escape_string($mysqli, trim($_POST['sub_total'])));
 
 			$created_user	 		= $_SESSION['id_user'];
 
@@ -37,20 +37,36 @@
 
 			// cek query
 			if($insert_keranjang){
-				echo true;
+				$query = mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+				
+				$cek = mysqli_fetch_array($query);
+
+				if ($cek['total'] !== null) {
+					echo $cek['total'];
+				}
 			}
 
 		} elseif (isset($_GET['id'])){
-				$id_keranjang = $_GET['id'];
-	
-				// query utk hapus data pd tabel pakaian
-				$query = mysqli_query ($mysqli, "DELETE FROM keranjang WHERE id_keranjang = '$id_keranjang'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
-	
-				// cek hasil query
-				if ($query){
-					// jika berhasil tampilkan pesan berhasil delete data
-					echo true;
-				}
+			$id_keranjang = $_GET['id'];
+
+			// query utk hapus data pd tabel pakaian
+			$query = mysqli_query ($mysqli, "DELETE FROM keranjang WHERE id_keranjang = '$id_keranjang'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+
+			// cek hasil query
+			if ($query){
+				// jika berhasil tampilkan pesan berhasil delete data
+				echo true;
+			}
+		} elseif (isset($_POST['id'])){
+			$kd_transaksi = $_POST['id'];
+
+			$query = mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+
+			$cek = mysqli_fetch_array($query);
+
+			if ($cek['total'] !== null) {
+				echo $cek['total'];
+			}
 		}
 
 	}
