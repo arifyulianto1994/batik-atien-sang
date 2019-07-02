@@ -73,7 +73,7 @@
 					"orderable": false,
 					"targets": 4,
 					"render": function(data, type, row){
-						var btn = "<center><a href=\"edit.php?id="+data+"\" class=\"btn btn-danger btn-xs\"><i class=\"glyphicon glyphicon-remove\"></i></a></center>";
+						var btn = "<a data-id=\""+data+"\" class=\"btn btn-danger btn-xs\" onclick=\"hapus("+data+")\"><i class=\"glyphicon glyphicon-remove\"></i></a></<a>";
 						return btn;
 					}
 				}
@@ -103,8 +103,23 @@
 					}
 				}
 			})
-		})	
+		})
 	});
+
+	function hapus(id){
+		var id_keranjang = id;
+
+		$.ajax({
+			url: 'modules/barang_masuk/proses.php',
+			data: {id: id_keranjang},
+			type: 'get',
+			success: function(response){
+				if (response > 0) {
+					$('#table-keranjang').DataTable().ajax.reload();
+				}
+			}
+		})
+	}
 
  </script>
 
@@ -245,7 +260,6 @@
 
 								<div class="row box-footer">
 									<div class="col-md-7 col-sm-7 col-xs-12 col-lg-7 text-right">
-										<input type="button" class="btn btn-success btn-danger btn-submit" id="reset" value="Reset">
 										<input type="submit" class="btn btn-success btn-submit" id="tambah" name="tambah" value="Tambah" href="?module=form_barang_masuk&form=add&id=$data[kd_transaksi]">	
 									</div>
 								</div>
