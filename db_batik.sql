@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 27 Jun 2019 pada 06.23
+-- Generation Time: 02 Jul 2019 pada 09.44
 -- Versi Server: 5.6.21
 -- PHP Version: 7.3.4
 
@@ -58,12 +58,31 @@ CREATE TABLE IF NOT EXISTS `detail_masuk` (
   `sub_total` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data untuk tabel `detail_masuk`
+-- Struktur dari tabel `keranjang`
 --
 
-INSERT INTO `detail_masuk` (`kd_transaksi`, `tanggal_masuk`, `kd_barang`, `kd_supplier`, `jumlah_masuk`, `harga`, `sub_total`) VALUES
-('TM-2019-0000001', '2019-06-27', 'B000004', 'S000003', 20, 20000, 400000);
+CREATE TABLE IF NOT EXISTS `keranjang` (
+`id_keranjang` int(11) NOT NULL,
+  `kd_transaksi` char(15) NOT NULL,
+  `tanggal_masuk` date NOT NULL,
+  `kd_barang` char(7) NOT NULL,
+  `kd_supplier` char(7) NOT NULL,
+  `jumlah_masuk` int(11) NOT NULL,
+  `harga` int(11) NOT NULL,
+  `sub_total` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data untuk tabel `keranjang`
+--
+
+INSERT INTO `keranjang` (`id_keranjang`, `kd_transaksi`, `tanggal_masuk`, `kd_barang`, `kd_supplier`, `jumlah_masuk`, `harga`, `sub_total`) VALUES
+(37, 'TM-2019-0000001', '2019-07-02', 'B000005', 'S000004', 1, 1000, 1000),
+(38, 'TM-2019-0000001', '2019-07-02', 'B000004', 'S000003', 2, 2000, 4000),
+(39, 'TM-2019-0000001', '2019-07-02', 'B000004', 'S000004', 1, 3000, 3000);
 
 -- --------------------------------------------------------
 
@@ -100,13 +119,6 @@ CREATE TABLE IF NOT EXISTS `tb_barang_masuk` (
   `created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Dumping data untuk tabel `tb_barang_masuk`
---
-
-INSERT INTO `tb_barang_masuk` (`kd_transaksi`, `tanggal_masuk`, `sub_total`, `created_user`, `created_date`) VALUES
-('TM-2019-0000001', '2019-06-27', 400000, 0, '2019-06-27 04:21:24');
-
 -- --------------------------------------------------------
 
 --
@@ -132,7 +144,8 @@ CREATE TABLE IF NOT EXISTS `tb_pakaian` (
 --
 
 INSERT INTO `tb_pakaian` (`kd_barang`, `kd_supplier`, `nama_barang`, `kategori`, `harga_beli`, `harga_jual`, `stok`, `created_user`, `created_date`, `updated_user`, `updated_date`) VALUES
-('B000004', 'S000003', 'barang3', 'Brukat', 30000, 900000, 221, 4, '2019-06-26 02:27:29', 4, '2019-06-27 04:21:24');
+('B000004', 'S000003', 'barang 5', 'Brukat', 30000, 900000, 0, 4, '2019-06-26 02:27:29', 4, '2019-07-02 04:31:48'),
+('B000005', 'S000003', 'barang 6', 'Brukat', 200000, 300000, 0, 4, '2019-07-02 03:53:33', 4, '2019-07-02 03:53:33');
 
 -- --------------------------------------------------------
 
@@ -214,6 +227,12 @@ ALTER TABLE `detail_masuk`
  ADD PRIMARY KEY (`kd_transaksi`);
 
 --
+-- Indexes for table `keranjang`
+--
+ALTER TABLE `keranjang`
+ ADD PRIMARY KEY (`id_keranjang`);
+
+--
 -- Indexes for table `tb_barang_keluar`
 --
 ALTER TABLE `tb_barang_keluar`
@@ -253,6 +272,11 @@ ALTER TABLE `tb_user`
 -- AUTO_INCREMENT for dumped tables
 --
 
+--
+-- AUTO_INCREMENT for table `keranjang`
+--
+ALTER TABLE `keranjang`
+MODIFY `id_keranjang` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=40;
 --
 -- AUTO_INCREMENT for table `tb_peramalan`
 --
