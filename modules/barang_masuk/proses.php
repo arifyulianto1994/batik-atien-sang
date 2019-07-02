@@ -30,35 +30,37 @@
 
 		$created_user	 		= $_SESSION['id_user'];
 
-		// query utk simpan dataa ke tabell barang masuk
-		$query_detailmasuk = mysqli_query($mysqli, "INSERT INTO detail_masuk (kd_transaksi, tanggal_masuk, kd_barang, kd_supplier, jumlah_masuk, harga, sub_total) VALUES ('$kd_transaksi', '$tanggal_masuk', '$kd_barang', '$kd_supplier', '$jumlah_masuk', '$harga', '$sub_total')");
+		// query utk simpan dataa ke tabell keranjang
+		$insert_keranjang = mysqli_query($mysqli, "INSERT INTO keranjang (kd_transaksi, tanggal_masuk, kd_barang, kd_supplier, jumlah_masuk, harga, sub_total) VALUES ('$kd_transaksi', '$tanggal_masuk', '$kd_barang', '$kd_supplier', '$jumlah_masuk', '$harga', '$sub_total')");
 
-		$query_barangmasuk = mysqli_query($mysqli, "INSERT INTO tb_barang_masuk (kd_transaksi, tanggal_masuk, sub_total) VALUES ('$kd_transaksi', '$tanggal_masuk', '$sub_total')");
+		// $query_barangmasuk = mysqli_query($mysqli, "INSERT INTO tb_barang_masuk (kd_transaksi, tanggal_masuk, sub_total) VALUES ('$kd_transaksi', '$tanggal_masuk', '$sub_total')");
 
 		// cek query
-		if($query_barangmasuk){
+		if($insert_keranjang){
 			// query utk ubah data pd tabel barang masuk
-			$query1 = mysqli_query($mysqli, "UPDATE tb_pakaian SET stok = '$total_stok' WHERE kd_barang='$kd_barang'") or die('Ada kesalahan pada query update : '.mysqli_error($mysqli));
+			// $query1 = mysqli_query($mysqli, "UPDATE tb_pakaian SET stok = '$total_stok' WHERE kd_barang='$kd_barang'") or die('Ada kesalahan pada query update : '.mysqli_error($mysqli));
+
+			echo true;
 
 			// cek query
-			if($query1){
-				// jika berhasil tampilkan pesan berhasil simpandata
-				$nomor 	= 0; 
-				$output = "";
+			// if($query1){
+			// 	// jika berhasil tampilkan pesan berhasil simpandata
+			// 	$nomor 	= 0; 
+			// 	$output = "";
 
-				$output .= "<tr>";
-					$output .= "<td>".$nomor."</td>";
-					$output .= "<td>".$tanggal_masuk."</td>";
-					$output .= "<td>".$kd_barang."</td>";
-					$output .= "<td>".$jumlah_masuk."</td>";
-					$output .= "<td>".$sub_total."</td>";
-					$output .= "<td>
-									<button class='btn btn-danger'><i class='glyphicon glyphicon-remove'></i></button>
-								</td>";
-				$output .= "</tr>";
+			// 	$output .= "<tr>";
+			// 		$output .= "<td>".$nomor."</td>";
+			// 		$output .= "<td>".$tanggal_masuk."</td>";
+			// 		$output .= "<td>".$kd_barang."</td>";
+			// 		$output .= "<td>".$jumlah_masuk."</td>";
+			// 		$output .= "<td>".$sub_total."</td>";
+			// 		$output .= "<td>
+			// 						<button class='btn btn-danger'><i class='glyphicon glyphicon-remove'></i></button>
+			// 					</td>";
+			// 	$output .= "</tr>";
 
-				echo $output;
-			}
+			// 	echo $output;
+			// }
 		}
 
 		// if($_POST['id']){

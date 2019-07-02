@@ -49,31 +49,48 @@
 		// 	}
 		// 	document.formBarangMasuk.sub_total.value = (hasil);
 		// } 
-		$(document).ready(function(){
-			$("#harga").keyup(function(){
-				var jumlah_masuk 	= $("#jumlah_masuk").val();
-				var harga 			= $("#harga").val().replace(/\./g,'');
-				var total 			= parseInt(jumlah_masuk) * parseInt(harga);
-				$("#sub_total").val(total);
-			});
-
-			var kode = $('#kd_transaksi').val();
-			
-			$('#tabel-list-produk').DataTable( {
-				"processing": true,
-				"serverSide": true,
-				"ajax": "ajax.php"
-			} );
-		});
-
 </script>
 
 <script>
  	
 	$(document).ready(function() {
+
+		var kode = "TM-2019-0000001";
+
+		$('#table-keranjang').DataTable( {
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+				"url": "modules/barang_masuk/ajax.php",
+				"type": "post",
+				"data":  {
+						code : kode
+					}
+			},
+			"columnDefs": [
+				{
+					"searchable": false,
+					"orderable": false,
+					"targets": 4,
+					"render": function(data, type, row){
+						var btn = "<center><a href=\"edit.php?id="+data+"\" class=\"btn btn-danger btn-xs\"><i class=\"glyphicon glyphicon-remove\"></i></a></center>";
+						return btn;
+					}
+				}
+			]
+        } );
+
+
+		$("#harga").keyup(function(){
+			var jumlah_masuk 	= $("#jumlah_masuk").val();
+			var harga 			= $("#harga").val().replace(/\./g,'');
+			var total 			= parseInt(jumlah_masuk) * parseInt(harga);
+			$("#sub_total").val(total);
+		});
+
+		
 		$('#tambah').click(function(e){
 			e.preventDefault();
-
 			var dataForm = $('#myForm').serialize();
 
 			$.ajax({
@@ -81,8 +98,8 @@
 				data: dataForm,
 				type: 'post',
 				success: function(response){
-					if (response) {
-						$('#tabel-list-produk').ajax.reload();
+					if (response > 0) {
+						$('#table-keranjang').DataTable().ajax.reload();
 					}
 				}
 			})
@@ -111,7 +128,7 @@
 
 		<!-- main content -->
 		<section class="content">
-			<div class="row">
+			<div class="row">	
 				<div class="col-md-12">
 					<div class="box box-primary">
 						<!-- form statrt -->
@@ -137,15 +154,15 @@
 								 ?>
 
 								 <div class="form-group">
-								 	<label class="col-sm-2 control-label">Kode Transaksi</label>
-								 	<div class="col-sm-5">
+								 	<label class="col-md-2 control-label">Kode Transaksi</label>
+								 	<div class="col-md-5">
 								 		<input type="text" id="kd_transaksi" class="form-control" name="kd_transaksi" value="<?php echo $kd_transaksi; ?>" readonly required>
 								 	</div>
 								 </div>
 
 								 <div class="form-group">
-								 	<label class="col-sm-2 control-label">Tanggal</label>
-								 	<div class="col-sm-5">
+								 	<label class="col-md-2 control-label">Tanggal</label>
+								 	<div class="col-md-5">
 								 		<input type="text" class="form-control date-picker" date-date-format="dd-mm-yyyy" name="tanggal_masuk" autocomplete="off" value="<?php echo date("d-m-Y"); ?>" required>
 								 	</div>
 								 </div>
@@ -153,15 +170,15 @@
 								 <hr>
 
 								 <div class="form-group">
-								 	<label class="col-sm-2 control-label">Batik</label>
-								 	<div class="col-sm-5">
+								 	<label class="col-md-2 control-label">Batik</label>
+								 	<div class="col-md-5">
 								 		<select class="chosen-select" name="kd_barang" data-placeholder="--Pilih--" onchange="tampil_batik(this)" autocomplete="off" required>
 								 			<option value=""></option>
 								 			<?php 
 								 				$query_batik = mysqli_query($mysqli, "SELECT kd_barang, nama_barang FROM tb_pakaian ORDER BY nama_barang ASC") or die('Ada kesalahan pada query tampil batik: '.mysqli_error($mysqli));
 
 								 				while($data_batik = mysqli_fetch_assoc($query_batik)){
-								 					echo"<option value=\"$data_batik[kd_barang]\"> $data_batik[kd_barang] | $data_batik[nama_barang]</option>";
+								 					echo"<option value=\"$data_batik[kd_barang]\">$data_batik[nama_barang]</option>";
 								 				}
 								 			 ?>
 								 		</select>
@@ -169,8 +186,8 @@
 								 </div>
 
 								 <div class="form-group">
-								 	<label class="col-sm-2 control-label">Nama Supplier</label>
-								 	<div class="col-sm-5">
+								 	<label class="col-md-2 control-label">Nama Supplier</label>
+								 	<div class="col-md-5">
 								 		<select class="chosen-select" name="kd_supplier" data-placeholder="--Pilih--" autocomplete="off" required>
 								 			<option value=""></option>
 								 			<?php 
@@ -185,30 +202,30 @@
 
 								 <span id='stok'>
 								 	<div class="form-group">
-								 		<label class="col-sm-2 control-label">Stok</label>
-								 		<div class="col-sm-5">
+								 		<label class="col-md-2 control-label">Stok</label>
+								 		<div class="col-md-5">
 								 			<input type="text" class="form-control" id="stok" name="stok" readonly required>
 								 		</div>
 								 	</div>
 								 </span>
 
 								 <div class="form-group">
-								 	<label class="col-sm-2 control-label">Jumlah Masuk</label>
-								 	<div class="col-sm-5">
+								 	<label class="col-md-2 control-label">Jumlah Masuk</label>
+								 	<div class="col-md-5">
 								 		<input type="text" class="form-control" id="jumlah_masuk" name="jumlah_masuk" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" onkeyup="hitung_total_stok(this)&cek_jumlah_masuk(this)" required>
 								 	</div>
 								 </div>
 
 								 <div class="form-group">
-								 	<label class="col-sm-2 control-label">Total Stok</label>
-								 	<div class="col-sm-5">
+								 	<label class="col-md-2 control-label">Total Stok</label>
+								 	<div class="col-md-5">
 								 		<input type="text" class="form-control" id="total_stok" name="total_stok" readonly required>
 								 	</div>
 								 </div>
 
 								 <div class="form-group">
-										<label class="col-sm-2 control-label">Harga</label>
-										<div class="col-sm-5">
+										<label class="col-md-2 control-label">Harga</label>
+										<div class="col-md-5">
 											<div class="input-group">
 												<span class="input-group-addon">Rp.</span>
 												<input type="text" class="form-control" id="harga" name="harga" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" required>
@@ -217,8 +234,8 @@
 									</div>
 
 									<div class="form-group">
-										<label class="col-sm-2 control-label">Total</label>
-										<div class="col-sm-5">
+										<label class="col-md-2 control-label">Total</label>
+										<div class="col-md-5">
 											<div class="input-group">
 												<span class="input-group-addon">Rp.</span>
 												<input type="text" class="form-control" id="sub_total" name="sub_total" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" readonly="readonly">
@@ -226,18 +243,14 @@
 										</div>
 									</div>
 
-							<!-- ./box body -->
-							</div>
-
-							<div class="box-footer">
-								<div class="form-group">
-									<div class="col-sm-offset-2 col-sm-10">
-										<input type="submit" class="btn btn-success btn-submit" id="tambah" name="tambah" value="Tambah" href="?module=form_barang_masuk&form=add&id=$data[kd_transaksi]">
-										
+								<div class="row box-footer">
+									<div class="col-md-7 col-sm-7 col-xs-12 col-lg-7 text-right">
+										<input type="button" class="btn btn-success btn-danger btn-submit" id="reset" value="Reset">
+										<input type="submit" class="btn btn-success btn-submit" id="tambah" name="tambah" value="Tambah" href="?module=form_barang_masuk&form=add&id=$data[kd_transaksi]">	
 									</div>
 								</div>
+							<!-- ./box body -->
 							</div>
-							
 						</form>
 					</div>
 				</div>
@@ -252,22 +265,17 @@
 				<div class="col-md-12">
 					<div class="box box-primary">
 						<div class="box-body">
-							<table id="tabel-list-produk" class="table table-bordered table-striped table-hover dataTable">
+							<table id="table-keranjang" class="table table-bordered table-striped table-hover text-center">
 								<!-- tampilan tabel header -->
 								<thead>
 									<tr>
-										<th class="center">No.</th>
-										<th class="center">Tanggal</th>
+										<th class="center">Tanggal Masuk</th>
 										<th class="center">Nama Barang</th>
 										<th class="center">Jumlah Masuk</th>
 										<th class="center">Sub Total</th>
 										<th class="center">Aksi</th>
 									</tr>
 								</thead>
-
-								<tbody id="">
-
-								</tbody>
 							</table>
 						</div>
 					</div>
