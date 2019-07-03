@@ -68,7 +68,7 @@
 			success: function(response){
 				if (response) {
 					tunai = tunai + parseInt(response);
-					$('#total').val(tunai);
+					$('#total').val(formatRupiah(tunai.toString(), ''));
 				}
 			}
 		})
@@ -100,7 +100,7 @@
 			]
         } );
 
-
+		// menghitung total harga 
 		$("#harga").keyup(function(){
 			var jumlah_masuk 	= $("#jumlah_masuk").val();
 			var harga 			= $("#harga").val().replace(/\./g,'');
@@ -108,6 +108,7 @@
 			$("#sub_total").val(formatRupiah(total.toString(), ''));
 		});
 		
+		// proses kirim data simpan data produk
 		$('#tambah').click(function(e){
 			e.preventDefault();
 			var dataForm = $('#myForm').serialize();
@@ -117,16 +118,29 @@
 				data: dataForm,
 				type: 'post',
 				success: function(response){
-						$('#table-keranjang').DataTable().ajax.reload();
-						tunai = parseInt(response);
-						$('#total').val(tunai);
+					$('#table-keranjang').DataTable().ajax.reload();
+					tunai = parseInt(response);
+					$('#total').val(formatRupiah(tunai.toString(), ''));
 				}
 			})
+		})
+
+		// ubah nominal tunai ke format rupiah ketika diketik
+		$('#tunai').keyup(function(){
+			var nominal = $(this).val();
+			$(this).val(formatRupiah(nominal.toString(), ''));
+
+			const tunai 	= $(this).val().replace(/\./g,'');
+			const total 	= $('#total').val().replace(/\./g,'');
+			const kembali 	= parseInt(tunai) - parseInt(total);
+
+			$('#kembali').val(formatRupiah(kembali.toString(), ''));
 		})
 		
 	});
 	 
 
+	// fungsi hapus data list produk
 	function hapus(id){
 		var id_keranjang = id;
 
@@ -141,8 +155,9 @@
 			}
 		})
 	}
+	
 
-	/* Fungsi formatRupiah */
+	/* Fungsi mengubah angka ke formatRupiah */
 	function formatRupiah(angka, prefix){
 		var number_string = angka.replace(/[^,\d]/g, '').toString(),
 		split   		= number_string.split(','),
