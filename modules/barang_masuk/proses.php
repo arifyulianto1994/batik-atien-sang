@@ -60,13 +60,31 @@
 		} elseif (isset($_POST['id'])){
 			$kd_transaksi = $_POST['id'];
 
-			$query = mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+			$query 	= mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
 
-			$cek = mysqli_fetch_array($query);
+			$cek 	= mysqli_fetch_array($query);
 
 			if ($cek['total'] !== null) {
 				echo $cek['total'];
 			}
+		} elseif (isset($_POST['bayar'])){
+			$kd_transaksi 	= $_POST['code'];
+			$total 			= str_replace(".", "", mysqli_real_escape_string($mysqli, trim($_POST['bayar'])));
+			$tanggal 		= date('Y-m-d');
+
+			// ambil data keranjang
+			$query_keranjang 	= mysqli_query ($mysqli, "SELECT * FROM keranjang WHERE kd_transaksi = '$kd_transaksi'");
+
+			while ($dt = mysqli_fetch_array($query_keranjang)) {
+				$query_detail_masuk 	= mysqli_query($mysqli, "INSERT INTO detail_masuk (kd_transaksi, tanggal_masuk, kd_barang, kd_supplier, jumlah_masuk, harga, sub_total) VALUES ('".$dt['kd_transaksi']."', '".$dt['tanggal_masuk']."', '".$dt['kd_barang']."', '".$dt['kd_supplier']."', '".$dt['jumlah_masuk']."', '".$dt['harga']."', '".$dt['sub_total']."')");
+			}
+
+			// hapus data keranjang
+			$hapus_keranjang = mysqli_query ($mysqli, "DELETE FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+
+			// insert data barang masuk
+			$insert_barang_masuk = mysqli_query($mysqli, "INSERT INTO tb_barang_masuk (kd_transaksi, tanggal_masuk, sub_total) VALUES ('$kd_transaksi', '$tanggal', '$total')");
+
 		}
 
 	}

@@ -136,6 +136,24 @@
 
 			$('#kembali').val(formatRupiah(kembali.toString(), ''));
 		})
+
+		// simpan bayar
+		$('#bayar').click(function(){
+			const total = $('#total').val();
+			const tanggal = $();
+
+			$.ajax({
+				url: 'modules/barang_masuk/proses.php',
+				data: {
+						code: kode,
+						bayar: total
+					},
+				type: 'post',
+				success: function(response){
+					console.log(response);
+				}
+			})
+		})
 		
 	});
 	 
