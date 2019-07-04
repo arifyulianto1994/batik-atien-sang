@@ -85,6 +85,27 @@
 			// insert data barang masuk
 			$insert_barang_masuk = mysqli_query($mysqli, "INSERT INTO tb_barang_masuk (kd_transaksi, tanggal_masuk, sub_total) VALUES ('$kd_transaksi', '$tanggal', '$total')");
 
+		} elseif (isset($_POST['detail'])) {
+			$kd_transaksi = $_POST['detail'];
+
+			// ambil data transaksi barang masuk
+			$query_detail_masuk = mysqli_query ($mysqli, "SELECT p.nama_barang, p.kategori, dm.kd_transaksi, dm.jumlah_masuk, dm.harga FROM detail_masuk dm INNER JOIN tb_pakaian p ON p.kd_barang = dm.kd_barang WHERE dm.kd_transaksi = '$kd_transaksi'");
+
+			// $dt_detail_masuk = mysqli_fetch_array($query_detail_masuk);
+
+			$temp = [];
+			$i = 0;
+
+			while ($dt_detail_masuk = mysqli_fetch_array($query_detail_masuk)) {
+				$temp[$i]['nama_barang'] = $dt_detail_masuk['nama_barang'];
+				$temp[$i]['kategori'] = $dt_detail_masuk['kategori'];
+				$temp[$i]['jumlah_masuk'] = $dt_detail_masuk['jumlah_masuk'];
+				$temp[$i]['harga'] = $dt_detail_masuk['harga'];
+				
+				$i++;
+			}
+
+			echo json_encode($temp);
 		}
 
 	}
