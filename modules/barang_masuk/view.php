@@ -120,8 +120,14 @@
 <script>
 
 	$(document).ready(function(){
+
+
+
 		 $('.detail_masuk').each(function(i, v){
 			$('.detail_masuk').eq(i).click(function() {
+				// reset modal
+				// $('#table-detail-masuk tr').detach();
+				
 				const kode = $(this).attr("id");
 
 				$.ajax({

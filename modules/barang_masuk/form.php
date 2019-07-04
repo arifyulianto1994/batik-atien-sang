@@ -150,7 +150,9 @@
 					},
 				type: 'post',
 				success: function(response){
-					console.log(response);
+					setTimeout (function() {
+						location.reload();
+					}, 500); 
 				}
 			})
 		})

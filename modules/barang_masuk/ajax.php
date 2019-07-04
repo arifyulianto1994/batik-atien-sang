@@ -48,7 +48,7 @@ $sql_details = array(
 );
 
 
-$where = 'kd_transaksi = "'.$_POST['code'].'"';
+$where = $_POST['code'];
  
  
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -59,5 +59,5 @@ $where = 'kd_transaksi = "'.$_POST['code'].'"';
 require( '../../library/ssp.class.php' );
  
 echo json_encode(
-    SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns, $join )
+    SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns, $join, $where )
 );

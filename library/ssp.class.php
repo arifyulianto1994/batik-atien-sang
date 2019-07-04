@@ -175,7 +175,7 @@ class SSP {
 	 *  @param  string $default Default Where clause string 
 	 *  @return array          Server-side processing response array
 	 */
-	static function simple ( $request, $sql_details, $table, $primaryKey, $columns, $join, $default = false )
+	static function simple ( $request, $sql_details, $table, $primaryKey, $columns, $join, $where, $default = false )
 	{
 		$bindings = array();
 		$db = self::sql_connect( $sql_details );
@@ -188,7 +188,7 @@ class SSP {
 			 FROM `$table`
 			 INNER JOIN $join
 			 ON keranjang.kd_barang = tb_pakaian.kd_barang
-			 WHERE keranjang.kd_transaksi = 'TM-2019-0000001'
+			 WHERE keranjang.kd_transaksi = '$where'
 			 $order
 			 $limit"
 		);
