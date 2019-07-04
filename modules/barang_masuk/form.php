@@ -81,7 +81,7 @@
             "processing": true,
             "serverSide": true,
             "ajax": {
-				"url": "modules/barang_masuk/ajax.php",
+				"url": "modules/barang_masuk/load_ajax.php",
 				"type": "post",
 				"data":  {
 						code : kode
@@ -100,9 +100,25 @@
 			]
         } );
 
+		// ambil harga dan stok sesuai pilihan barang 
+		$('#kd_barang').change(function(e){
+			const kode_barang = $(this).val();
+
+			$.ajax({
+				url: 'modules/barang_masuk/proses.php',
+				type: 'get',
+				dataType: 'json',
+				data: {kode_barang: kode_barang},
+				success: function(data){
+					$('#stok').val(data.stok);
+					$('#harga').val(formatRupiah(data.harga.toString(), ''));
+				}	
+			})
+		})
+
 		// menghitung total harga 
-		$("#harga").keyup(function(){
-			var jumlah_masuk 	= $("#jumlah_masuk").val();
+		$("#jumlah_masuk").keyup(function(){
+			var jumlah_masuk 	= $(this).val();
 			var harga 			= $("#harga").val().replace(/\./g,'');
 			var total 			= parseInt(jumlah_masuk) * parseInt(harga);
 			$("#sub_total").val(formatRupiah(total.toString(), ''));
@@ -150,9 +166,7 @@
 					},
 				type: 'post',
 				success: function(response){
-					setTimeout (function() {
-						location.reload();
-					}, 500); 
+					location.reload();
 				}
 			})
 		})
@@ -261,7 +275,7 @@
 								 <div class="form-group">
 								 	<label class="col-md-2 control-label">Batik</label>
 								 	<div class="col-md-5">
-								 		<select class="chosen-select" name="kd_barang" data-placeholder="--Pilih--" onchange="tampil_batik(this)" autocomplete="off" required>
+								 		<select class="chosen-select" name="kd_barang" data-placeholder="--Pilih--" id="kd_barang">
 								 			<option value=""></option>
 								 			<?php 
 								 				$query_batik = mysqli_query($mysqli, "SELECT kd_barang, nama_barang FROM tb_pakaian ORDER BY nama_barang ASC") or die('Ada kesalahan pada query tampil batik: '.mysqli_error($mysqli));
@@ -289,11 +303,11 @@
 								 	</div>
 								 </div>
 
-								 <span id='stok'>
+								 <span>
 								 	<div class="form-group">
 								 		<label class="col-md-2 control-label">Stok</label>
 								 		<div class="col-md-5">
-								 			<input type="text" class="form-control" id="stok" name="stok" readonly required>
+								 			<input type="text" class="form-control" id="stok" name="stok" readonly>
 								 		</div>
 								 	</div>
 								 </span>
@@ -317,7 +331,7 @@
 										<div class="col-md-5">
 											<div class="input-group">
 												<span class="input-group-addon">Rp.</span>
-												<input type="text" class="form-control" id="harga" name="harga" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" required>
+												<input type="text" class="form-control" id="harga" name="harga" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" readonly>
 											</div>
 										</div>
 									</div>
