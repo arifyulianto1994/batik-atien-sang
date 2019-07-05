@@ -9,46 +9,32 @@
 			$('#stok').html(response)
 
 			document.getElementById('jumlah_masuk').focus();
-
-			
 		});
 	}	
 
-		function cek_jumlah_masuk(input){
-			jml =document.formBarangMasuk.jumlah_masuk.value;
-			var jumlah = eval(jml);
-			if(jumlah < 1){
-				alert('Jumlah Masuk Tidak Boleh Nol!');
-				input.value = input.value.substring(0,input.value.lenght-1);
-			}
+	function cek_jumlah_masuk(input){
+		jml =document.formBarangMasuk.jumlah_masuk.value;
+		var jumlah = eval(jml);
+		if(jumlah < 1){
+			alert('Jumlah Masuk Tidak Boleh Nol!');
+			input.value = input.value.substring(0,input.value.lenght-1);
+		}
+	}
+
+	function hitung_total_stok(){
+		bil1 = document.formBarangMasuk.stok.value;
+		bil2 = document.formBarangMasuk.jumlah_masuk.value;
+
+		if(bil2 == "") {
+			var hasil = "";
+		}
+		else{
+			var hasil = eval(bil1)+eval(bil2);
 		}
 
-		function hitung_total_stok(){
-			bil1 = document.formBarangMasuk.stok.value;
-			bil2 = document.formBarangMasuk.jumlah_masuk.value;
+		document.formBarangMasuk.total_stok.value = (hasil);
+	}
 
-			if(bil2 == "") {
-				var hasil = "";
-			}
-			else{
-				var hasil = eval(bil1)+eval(bil2);
-			}
-
-			document.formBarangMasuk.total_stok.value = (hasil);
-		}
-
-		// function hitung_sub_total(){
-		// 	jumlah = document.formBarangMasuk.jumlah_masuk.value;
-		// 	hargasatuan = document.formBarangMasuk.harga.value;
-			
-		// 	if(hargasatuan == ""){
-		// 		var hasil = "";
-		// 	}
-		// 	else{
-		// 		var hasil = eval(jumlah)*eval(hargasatuan);
-		// 	}
-		// 	document.formBarangMasuk.sub_total.value = (hasil);
-		// } 
 </script>
 
 <script>
@@ -61,6 +47,7 @@
 		let tunai = 0;
 		$('#total').prop('readonly', true).val(tunai);
 
+		// ambil data total bayar 
 		$.ajax({
 			url: "modules/barang_masuk/proses.php",
 			type: "post",
@@ -71,8 +58,9 @@
 					$('#total').val(formatRupiah(tunai.toString(), ''));
 				}
 			}
-		})
+		})	
 
+		// load datatable
 		$('#table-keranjang').DataTable( {
 			"bFilter": false,
 			"bPaginate": false,
@@ -80,6 +68,7 @@
 			"bInfo": false,
             "processing": true,
             "serverSide": true,
+			"dataSrc": "",
             "ajax": {
 				"url": "modules/barang_masuk/load_ajax.php",
 				"type": "post",
@@ -88,6 +77,15 @@
 					}
 			},
 			"columnDefs": [
+				{
+					"searchable": false,
+					"orderable": false,
+					"targets": 3,
+					"render": function(data, type, row){
+						var sub_total = formatRupiah(data.toString(), '');
+						return sub_total;
+					}
+				},
 				{
 					"searchable": false,
 					"orderable": false,
@@ -153,7 +151,7 @@
 			$('#kembali').val(formatRupiah(kembali.toString(), ''));
 		})
 
-		// simpan bayar
+		// proses simpan bayar
 		$('#bayar').click(function(){
 			const total = $('#total').val();
 			const tanggal = $();
@@ -359,7 +357,7 @@
 			</div>
 		</section>
 
-			<section class="content">
+		<section class="content">
 			<h3>
 				<i class="fa fa-shopping-cart icon-title"></i>List Produk
 			</h3>
@@ -411,9 +409,7 @@
 					</div>
 			 	</div>
 			</div>
-		</div>
-	</div>
-</section>
+		</section>
 	
 <?php 
 }
