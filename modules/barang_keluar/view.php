@@ -49,40 +49,32 @@
 
 			 			<tbody>
 			 				<?php 
-			 					$no =1;
+			 					$no = 1;
 			 					// query utk tampilkan data dr tabel pakaian
-			 					$query = mysqli_query($mysqli, "SELECT kd_transaksi,tanggal_keluar,sub_total
-			 													FROM tb_barang_keluar 
-			 													ORDER BY kd_transaksi") or die('Ada kesalahan pada query tampil data Batik keluar: '.mysqli_error($mysqli));
+			 					$query = mysqli_query($mysqli, "SELECT kd_transaksi, tanggal_keluar, sub_total FROM tb_barang_keluar ORDER BY kd_transaksi DESC") or die('Ada kesalahan pada query tampil data barang keluar: '.mysqli_error($mysqli));
 
 			 					// tampilkan data
 			 					while ($data = mysqli_fetch_assoc($query)){
-			 						$tanggal = $data['tanggal_keluar'];
-			 						$exp = explode('-',$tanggal);
+			 						$tanggal 		= $data['tanggal_keluar'];
+			 						$exp 			= explode('-',$tanggal);
 			 						$tanggal_keluar = $exp[2]."-".$exp[1]."-".$exp[0];
-			 						$sub_total = format_rupiah($data['sub_total']);
-			 					
-
-
-			 					// tampilkan isi tabel dr database ke tbl di app
-			 					echo "<tr>
-			 							<td width='20' class='center'>$no</td>
-			 							<td width='100' class='center'>$data[kd_transaksi]</td>
-			 							<td width='80' class='center'>$tanggal_keluar</td>		 							
-			 							<td width='80' align='right'>Rp. $sub_total</td>
+			 						$sub_total 		= format_rupiah($data['sub_total']);
+								?>
+								 <!-- // tampilkan isi tabel dr database ke tbl di app -->
+								 	<tr>
+			 							<td width='20' class='center'><?php echo $no ?></td>
+			 							<td width='100' class='center'><?php echo $data['kd_transaksi'] ?></td>
+			 							<td width='80' class='center'><?php echo $tanggal_keluar ?></td>		 							
+			 							<td width='80' align='right'>Rp. <?php echo $sub_total ?></td>
 
 			 							<td class='center' width='80'>
 			 								<div>
-			 									<button type='button' class='btn btn-info' data-toggle='modal' data-target='#myModal'>Detail</button>";
-						 				 ?>
+			 									<button type='button' class='btn btn-info detail_keluar' data-toggle='modal' data-target='#myModal' id='<?php echo $data['kd_transaksi'] ?>'>Detail</button>
+											</div>
+										</td>
+									</tr>
 						 				 
-						 				<?php 
-						 					echo "</div
-						 					</td>
-						 					</tr>";
-						 					$no++;
-						 				}
-						 				?>
+								<?php $no++; } ?>
 			 			</tbody>
 			 		</table>
 
@@ -94,17 +86,20 @@
 			 						<h4 class="modal-title">Detail Transaksi</h4>
 			 					</div>
 							<div class="modal-body">
-								<table id="dataTables1" class="table table-bordered table-striped table-hover">
+								<table id="dataTables1" class="table table-bordered table-striped table-hover text-center">
 									<thead>
 										<tr>
-											<th class="center">No.</th>
 											<th class="center">Nama Barang</th>
 											<th class="center">Kategori</th>
 											<th class="center">Jumlah</th>
 											<th class="center">Harga</th>
 										</tr>
 									</thead>
-							</table>
+
+									<tbody id="table-detail-keluar" class="">
+									
+									</tbody>
+								</table>
 							</div>
 						<div class="fetched-data"></div>
 		
@@ -120,5 +115,35 @@
 		</div>
 	</div>
 </section>
+
+<script>
+
+	$(document).ready(function(){
+		 $('.detail_keluar').each(function(i, v){
+			$('.detail_keluar').eq(i).click(function() {
+				// reset modal
+				$('#table-detail-keluar tr').detach();
+				
+				const kode = $(this).attr("id");
+
+				$.ajax({
+					url: 'modules/barang_keluar/proses.php',
+					type: 'post',
+					dataType: 'json',
+					data: {detail: kode},
+					success: function(data) {
+						$.each(data, function(index, value){
+							$('#table-detail-keluar').append('<tr><td>'+value.nama_barang+'</td><td>'+value.kategori+'</td><td>'+value.jumlah_keluar+'</td><td>'+value.harga+'</td></tr>');
+						})
+					}
+				});
+
+			});
+		 })
+
+	});
+
+
+</script>
 
 

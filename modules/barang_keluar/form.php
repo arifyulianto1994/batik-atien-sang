@@ -1,15 +1,206 @@
 <script type="text/javascript">
-	function tampil_batik(input){
-		var num = input.value;
+	// function tampil_batik(input){
+	// 	var num = input.value;
 
-		$.post("modules/barang_keluar/batik.php", {
-			dataidbatik:num,
-		}, function(response){
-			$('#stok').html(response)
+	// 	$.post("modules/barang_keluar/batik.php", {
+	// 		dataidbatik:num,
+	// 	}, function(response){
+	// 		$('#stok').html(response)
 
-			document.getElementById('jumlah_masuk').focus();
+	// 		document.getElementById('jumlah_masuk').focus();
+	// 	});
+	// }
+
+
+	$(document).ready(function(){
+
+		
+		var kode = $('#kd_transaksi').val();
+
+		// load data total bayar
+		let tunai = 0;
+		$('#total').prop('readonly', true).val(tunai);
+
+		// ambil data total bayar 
+		$.ajax({
+			url: "modules/barang_keluar/proses.php",
+			type: "post",
+			data: {id: kode},
+			success: function(response){
+				if (response) {
+					tunai = tunai + parseInt(response);
+					$('#total').val(formatRupiah(tunai.toString(), ''));
+				}
+			}
+		})	
+
+		// load datatable
+		$('#table-keranjang').DataTable( {
+			"bFilter": false,
+			"bPaginate": false,
+			"bSort": false,
+			"bInfo": false,
+            "processing": true,
+            "serverSide": true,
+			"dataSrc": "",
+            "ajax": {
+				"url": "modules/barang_keluar/load_ajax.php",
+				"type": "post",
+				"data":  {
+						code : kode
+					}
+			},
+			"columnDefs": [
+				{
+					"searchable": false,
+					"orderable": false,
+					"targets": 5,
+					"className": 'dt-body-right',
+					"render": function(data, type, row){
+						var harga = formatRupiah(data.toString(), '');
+						return harga;
+					}
+				},
+				{
+					"searchable": false,
+					"orderable": false,
+					"targets": 6,
+					"className": 'dt-body-right',
+					"render": function(data, type, row){
+						var total = formatRupiah(data.toString(), '');
+						return total;
+					}
+				},
+				{
+					"searchable": false,
+					"orderable": false,
+					"targets": 0,
+					"render": function(data, type, row){
+						var btn = "<a data-id=\""+data+"\" class=\"btn btn-danger btn-xs\" onclick=\"hapus("+data+")\"><i class=\"glyphicon glyphicon-trash\"></i></a></<a>";
+						return btn;
+					}
+				}
+			]
+        } );
+
+		// ambil harga dan stok sesuai pilihan barang 
+		$('#kd_barang').change(function(){
+			const kode_barang = $(this).val();
+
+			$.ajax({
+				url: 'modules/barang_keluar/proses.php',
+				type: 'get',
+				dataType: 'json',
+				data: {kode_barang: kode_barang},
+				success: function(data){
+					$('#stok').val(data.stok);
+					$('#harga').val(formatRupiah(data.harga.toString(), ''));
+				}	
+			})
 		});
-	}	
+
+		// proses kirim data simpan data produk
+		$('#tambah').click(function(e){
+			e.preventDefault();
+			var dataForm = $('#myForm').serialize();
+
+			$.ajax({
+				url: 'modules/barang_keluar/proses.php',
+				data: dataForm,
+				type: 'post',
+				success: function(response){
+					$('#table-keranjang').DataTable().ajax.reload();
+					tunai = parseInt(response);
+					$('#total').val(formatRupiah(tunai.toString(), ''));
+				}
+			})
+		})
+
+		// menghitung total harga 
+		$("#jumlah_keluar").keyup(function(){
+			var jumlah_keluar 	= $(this).val();
+			var stok_lama 		= $('#stok').val(); 
+
+			var stok_baru 		= parseInt(stok_lama) - parseInt(jumlah_keluar);
+
+			// $('#stok').val(stok_baru);
+
+			var harga 			= $("#harga").val().replace(/\./g,'');
+			var sub_total 		= parseInt(jumlah_keluar) * parseInt(harga);
+			$("#sub_total").val(formatRupiah(sub_total.toString(), ''));
+		});
+
+		// ubah nominal tunai ke format rupiah ketika diketik
+		$('#tunai').keyup(function(){
+			var nominal = $(this).val();
+			$(this).val(formatRupiah(nominal.toString(), ''));
+
+			const tunai 	= $(this).val().replace(/\./g,'');
+			const total 	= $('#total').val().replace(/\./g,'');
+			const kembali 	= parseInt(tunai) - parseInt(total);
+
+			// nominal minus jika uang tunai kurang dari total bayar
+			if (parseInt(tunai) < parseInt(total)) {
+				$('#kembali').val('-' + formatRupiah(kembali.toString(), ''));
+			} else {
+				$('#kembali').val(formatRupiah(kembali.toString(), ''));
+			}
+		})
+
+		// proses simpan bayar
+		$('#bayar').click(function(){
+			const total = $('#total').val();
+
+			$.ajax({
+				url: 'modules/barang_keluar/proses.php',
+				data: {
+						code: kode,
+						bayar: total
+					},
+				type: 'post',
+				success: function(response){
+					location.reload();
+				}
+			})
+		})
+
+	});	
+
+
+	// fungsi hapus data list produk
+	function hapus(id){
+		var id_keranjang = id;
+
+		$.ajax({
+			url: 'modules/barang_keluar/proses.php',
+			data: {id: id_keranjang},
+			type: 'get',
+			success: function(response){
+				if (response > 0) {
+					$('#table-keranjang').DataTable().ajax.reload();
+				}
+			}
+		})
+	}
+
+	
+	/* Fungsi mengubah angka ke formatRupiah */
+	function formatRupiah(angka, prefix){
+		var number_string = angka.replace(/[^,\d]/g, '').toString(),
+		split   		= number_string.split(','),
+		sisa     		= split[0].length % 3,
+		rupiah     		= split[0].substr(0, sisa),
+		ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+		// tambahkan titik jika yang di input sudah menjadi angka ribuan
+		if(ribuan){
+			separator = sisa ? '.' : '';
+			rupiah += separator + ribuan.join('.');
+		}
+
+		rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+		return prefix == undefined ? rupiah : (rupiah ? '' + rupiah : '');
+	}
 </script>
 
 <?php 
@@ -35,12 +226,12 @@
 				<div class="col-md-12">
 					<div class="box box-primary">
 						<!-- form statrt -->
-						<form role="form" class="form-horizontal" action="modules/barang_keluar/proses.php?act=insert" method="POST" name="formBarangKeluar">
+						<form role="form" class="form-horizontal" action="modules/barang_keluar/proses.php?act=insert" method="POST" name="formBarangKeluar" id="myForm">
 							<div class="box-body">
 								<?php 
 									// query utk buat kode transaksi
 									$query_id = mysqli_query($mysqli, "SELECT RIGHT(kd_transaksi,7) as kode FROM tb_barang_keluar ORDER BY kd_transaksi DESC LIMIT 1") or die('Ada kesalahan pada query tampil kode transaksi : '.mysqli_error($mysqli));
-									$count=mysqli_num_rows($query_id);
+									$count = mysqli_num_rows($query_id);
 
 									if($count <> 0){
 										// ambil data kode trans
@@ -59,7 +250,7 @@
 								 <div class="form-group">
 								 	<label class="col-sm-2 control-label">Kode Transaksi</label>
 								 	<div class="col-sm-5">
-								 		<input type="text" class="form-control" name="kd_transaksi" value="<?php echo $kd_transaksi; ?>" readonly required>
+								 		<input type="text" class="form-control" id="kd_transaksi" name="kd_transaksi" value="<?php echo $kd_transaksi; ?>" readonly required>
 								 	</div>
 								 </div>
 
@@ -73,20 +264,20 @@
 								 <div class="form-group">
 								 	<label class="col-sm-2 control-label">Batik</label>
 								 	<div class="col-sm-5">
-								 		<select class="chosen-select" name="kd_barang" data-placeholder="--Pilih--" onchange="tampil_batik(this)" autocomplete="off" required>
+								 		<select class="chosen-select" id="kd_barang" name="kd_barang" data-placeholder="--Pilih--" autocomplete="off" required>
 								 			<option value=""></option>
 								 			<?php 
 								 				$query_batik = mysqli_query($mysqli, "SELECT kd_barang, nama_barang FROM tb_pakaian ORDER BY nama_barang ASC") or die('Ada kesalahan pada query tampil batik: '.mysqli_error($mysqli));
 
-								 				while($data_batik = mysqli_fetch_assoc($query_batik)){
-								 					echo"<option value=\"$data_batik[kd_barang]\"> $data_batik[kd_barang] | $data_batik[nama_barang]</option>";
-								 				}
+								 				while ($data_batik = mysqli_fetch_assoc($query_batik)) {
 								 			 ?>
+												<option value="<?php echo $data_batik["kd_barang"] ?>"> <?php echo $data_batik["nama_barang"] ?></option>
+											<?php } ?>
 								 		</select>
 								 	</div>
 								 </div>
 
-								 <span id='stok'>
+								 <span>
 								 	<div class="form-group">
 								 		<label class="col-sm-2 control-label">Stok</label>
 								 		<div class="col-sm-5">
@@ -102,7 +293,7 @@
 								 	</div>
 								 </div>
 
-								 <div class="form-group">
+								 	<div class="form-group">
 										<label class="col-sm-2 control-label">Harga</label>
 										<div class="col-sm-5">
 											<div class="input-group">
@@ -112,30 +303,26 @@
 										</div>
 									</div>
 
-								  <div class="form-group">
+								  	<div class="form-group">
 										<label class="col-sm-2 control-label">Total</label>
 										<div class="col-sm-5">
 											<div class="input-group">
 												<span class="input-group-addon">Rp.</span>
-												<input type="text" class="form-control" id="total" name="total" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" readonly required>
+												<input type="text" class="form-control" id="sub_total" name="sub_total" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" readonly required>
 											</div>
 										</div>
 									</div>
-
-
+									
 								 <hr>
 
 							<!-- ./box body -->
 							</div>
 
-							<div class="box-footer">
-								<div class="form-group">
-									<div class="col-sm-offset-2 col-sm-10">
-										<input type="submit" class="btn btn-success btn-submit" name="simpan" value="Simpan">
-										<a href="?module=barang_keluar" class="btn btn-default btn-reset">Batal</a>
+							<div class="row box-footer">
+									<div class="col-md-7 col-sm-7 col-xs-12 col-lg-7 text-right">
+										<input type="submit" class="btn btn-success btn-submit" id="tambah" name="tambah" value="Tambah" href="?module=form_barang_masuk&form=add&id=$data[kd_transaksi]">	
 									</div>
 								</div>
-							</div>
 							
 						</form>
 					</div>
@@ -152,73 +339,61 @@
 				<div class="col-md-12">
 					<div class="box box-primary">
 						<div class="box-body">
-							<table class="table table-bordered table-striped table-hover">
-			 			<!-- tampilan tabel header -->
-			 			<thead>
-			 				<tr>
-			 					<th class="center">No.</th>
-			 					<th class="center">Kode Transaksi</th>
-			 					<th class="center">Tanggal</th>
-			 					<th class="center">Kode Barang</th>
-			 					<th class="center">Jumlah</th>
-			 					<th class="center">Harga</th>
-			 					<th class="center">Total</th>
-			 					<th class="center">Aksi</th>
-			 				</tr>
-			 			</thead>
-						<tbody>
-			 				<?php 
-			 					$no =1;
-			 					// query utk tampilkan data dr tabel pakaian
-			 					$query = mysqli_query($mysqli, "SELECT a.kd_transaksi,a.tanggal_keluar,b.kd_barang,a.jumlah_keluar,b.nama_barang								FROM detail_keluar as a INNER JOIN tb_pakaian as b ON a.kd_barang=b.kd_barang
-			 													ORDER BY kd_transaksi DESC") or die('Ada kesalahan pada query tampil data Barang masuk: '.mysqli_error($mysqli));
+							<table id="table-keranjang" class="table table-bordered table-striped table-hover text-center">
+								<!-- tampilan tabel header -->
+								<thead>
+									<tr>
+										<!-- <th class="center">No.</th> -->
+										<th class="center">Aksi</th>
+										<th class="center">Kode Transaksi</th>
+										<th class="center">Tanggal</th>
+										<th class="center">Nama Barang</th>
+										<th class="center">Jumlah</th>
+										<th class="center">Harga</th>
+										<th class="center">Total</th>
+									</tr>
+								</thead>
+							</table>
 
-			 					// tampilkan data
-			 					while ($data = mysqli_fetch_assoc($query)){
-			 						$tanggal = $data['tanggal_masuk'];
-			 						$exp = explode('-',$tanggal);
-			 						$tanggal_masuk = $exp[2]."-".$exp[1]."-".$exp[0];
-			 					
+							<hr>
 
+							<div class="row">
+								<div class="form-group">
+								 	<label class="col-md-9 control-label text-right">Total</label>
+								 	<div class="col-md-3">
+								 		<input type="text" class="form-control text-right" id="total" name="total" autocomplete="off" required disabled> 
+								 	</div>
+								 </div>
 
-			 					// tampilkan isi tabel dr database ke tbl di app
-			 					echo "<tr>
-			 							<td width='30' class='center'>$no</td>
-			 							<td width='100' class='center'>$data[kd_transaksi]</td>
-			 							<td width='80' class='center'>$tanggal_masuk</td>
-			 							<td width='100' class='center'>$data[kd_barang]</td>
-			 							<td width='100' class='center'>$data[nama_barang]</td>
-			 							<td width='80' class='center'>$data[jumlah_masuk]</td>
-			 							<td width='80' class='center'>$data[satuan]</td>
-			 							<td class='center' width='80'>
-			 								<div>
-			 									<a data-toggle='tooltip' data-placement='top' title='Hapus' style='margin-right:5px' class='btn btn-danger btn-sm' href='?module=form_batik&form=edit&id=$data[kd_transaksi]'>
-			 										<i style='color:#fff' class='fa fa-times'></i>
-			 									</a>";
-						 				 ?>
-						 				 
-						 				<?php 
-						 					echo "</div
-						 					</td>
-						 					</tr>";
-						 					$no++;
-						 				}
-						 				?>
-			 			</tbody>
-			 		</table>
-			 	</div>
-			 	<div class="box-footer">
-						<div class="form-group">
-							<div class="col-sm-offset-2 col-sm-10">
-								<input type="submit" class="btn btn-success btn-submit" name="simpan" value="Selesai">
+								<div class="form-group">
+								 	<label class="col-md-9 control-label text-right">Tunai</label>
+								 	<div class="col-md-3">
+								 		<input type="text" class="form-control text-right" id="tunai" name="tunai" autocomplete="off" required>
+								 	</div>
+								 </div>
+
+								<div class="form-group">
+								 	<label class="col-md-9 control-label text-right">Kembali</label>
+								 	<div class="col-md-3">
+								 		<input type="text" class="form-control text-right" id="kembali" name="kembali" autocomplete="off" required disabled>
+								 	</div>
+								 </div>
 							</div>
-						</div>
-				</div>
+
+							<hr>
+
+							<div class="row">
+								<div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
+									<input type="submit" class="btn btn-success btn-submit pull-right" id="bayar" value="Bayar">	
+								</div>
+							</div>
+			 			</div>
+						
 				
-			 </div>
-		</div>
-	</div>
-</section>
+			 		</div>
+				</div>
+			</div>	
+		</section>
 <?php 
 }
  ?>
