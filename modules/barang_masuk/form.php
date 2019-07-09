@@ -37,6 +37,9 @@
 
 </script>
 
+
+
+
 <script>
  	
 	$(document).ready(function() {
@@ -67,7 +70,7 @@
 			"bSort": false,
 			"bInfo": false,
             "processing": true,
-            "serverSide": true,
+            "serverSide": false,
 			"dataSrc": "",
             "ajax": {
 				"url": "modules/barang_masuk/load_ajax.php",
@@ -80,7 +83,8 @@
 				{
 					"searchable": false,
 					"orderable": false,
-					"targets": 3,
+					"targets": 4,
+					"className": 'dt-body-right',
 					"render": function(data, type, row){
 						var sub_total = formatRupiah(data.toString(), '');
 						return sub_total;
@@ -89,9 +93,9 @@
 				{
 					"searchable": false,
 					"orderable": false,
-					"targets": 4,
+					"targets": 0,
 					"render": function(data, type, row){
-						var btn = "<a data-id=\""+data+"\" class=\"btn btn-danger btn-xs\" onclick=\"hapus("+data+")\"><i class=\"glyphicon glyphicon-remove\"></i></a></<a>";
+						var btn = "<a data-id=\""+data+"\" class=\"btn btn-danger btn-xs\" onclick=\"hapus("+data+")\"><i class=\"glyphicon glyphicon-trash\"></i></a></<a>";
 						return btn;
 					}
 				}
@@ -108,6 +112,8 @@
 				dataType: 'json',
 				data: {kode_barang: kode_barang},
 				success: function(data){
+					$('#kd_supplier').val(data.kd_supplier);
+					$('#supplier').val(data.supplier);
 					$('#stok').val(data.stok);
 					$('#harga').val(formatRupiah(data.harga.toString(), ''));
 				}	
@@ -148,7 +154,13 @@
 			const total 	= $('#total').val().replace(/\./g,'');
 			const kembali 	= parseInt(tunai) - parseInt(total);
 
-			$('#kembali').val(formatRupiah(kembali.toString(), ''));
+			// nominal minus jika uang tunai kurang dari total bayar
+			if (parseInt(tunai) < parseInt(total)) {
+				$('#kembali').val('-' + formatRupiah(kembali.toString(), ''));
+			} else {
+				$('#kembali').val(formatRupiah(kembali.toString(), ''));
+			}
+
 		})
 
 		// proses simpan bayar
@@ -289,15 +301,8 @@
 								 <div class="form-group">
 								 	<label class="col-md-2 control-label">Nama Supplier</label>
 								 	<div class="col-md-5">
-								 		<select class="chosen-select" name="kd_supplier" data-placeholder="--Pilih--" autocomplete="off" required>
-								 			<option value=""></option>
-								 			<?php 
-								 				$query_suppl = mysqli_query($mysqli, "SELECT kd_supplier, nama_supplier FROM tb_supplier ORDER BY nama_supplier ASC") or die('Ada kesalahan pada query tampil suppl: '.mysqli_error($mysqli));
-
-								 				while($data_suppl = mysqli_fetch_assoc($query_suppl)){ ?>
-								 					<option value="<?= $data_suppl['kd_supplier'] ?>"> <?= $data_suppl['kd_supplier'] ?> | <?= $data_suppl['nama_supplier'] ?></option>
-								 				<?php } ?>
-								 		</select>
+									 	<input type="hidden" id="kd_supplier" name="kd_supplier">
+										<input type="text" class="form-control" id="supplier" name="supplier" readonly>
 								 	</div>
 								 </div>
 
@@ -369,40 +374,45 @@
 								<!-- tampilan tabel header -->
 								<thead>
 									<tr>
+										<th class="center">Aksi</th>
 										<th class="center">Tanggal Masuk</th>
 										<th class="center">Nama Barang</th>
 										<th class="center">Jumlah Masuk</th>
 										<th class="center">Sub Total</th>
-										<th class="center">Aksi</th>
 									</tr>
 								</thead>
 							</table>
-							<table class="table table-bordered table-striped table-hover text-center">
-								<!-- tampilan tabel header -->
-								<thead>
-									<tr>
-										<th colspan="4" class="text-right">Total</th>
-										<th>
-											<input type="text" class="form-control" id="total" name="total" readonly="readonly">
-										</th>
-									</tr>
-									<tr>
-										<th colspan="4">Tunai</th>
-										<th> 
-											<input type="text" class="form-control" id="tunai" name="tunai">
-										</th>
-									</tr>
-									<tr>
-										<th colspan="4">Kembali</th>
-										<th>
-											<input type="text" class="form-control" id="kembali" name="kembali" readonly="readonly">
-										</th>
-									</tr>
-								</thead>
-							</table>
+
+							<hr>
+
 							<div class="row">
-								<div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 text-right">
-									<input type="submit" class="btn btn-success btn-submit" id="bayar" value="Bayar">	
+								<div class="form-group">
+								 	<label class="col-md-9 control-label text-right">Total</label>
+								 	<div class="col-md-3">
+								 		<input type="text" class="form-control text-right" id="total" name="total" autocomplete="off" required disabled> 
+								 	</div>
+								 </div>
+
+								<div class="form-group">
+								 	<label class="col-md-9 control-label text-right">Tunai</label>
+								 	<div class="col-md-3">
+								 		<input type="text" class="form-control text-right" id="tunai" name="tunai" autocomplete="off" required>
+								 	</div>
+								 </div>
+
+								<div class="form-group">
+								 	<label class="col-md-9 control-label text-right">Kembali</label>
+								 	<div class="col-md-3">
+								 		<input type="text" class="form-control text-right" id="kembali" name="kembali" autocomplete="off" required disabled>
+								 	</div>
+								 </div>
+							</div>
+
+							<hr>
+
+							<div class="row">
+								<div class="col-md-12 col-sm-12 col-xs-12 col-lg-12">
+									<input type="submit" class="btn btn-success btn-submit pull-right" id="bayar" value="Bayar">	
 								</div>
 							</div>
 						</div>

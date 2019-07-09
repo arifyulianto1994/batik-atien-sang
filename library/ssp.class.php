@@ -187,8 +187,7 @@ class SSP {
 			"SELECT SQL_CALC_FOUND_ROWS `".implode("`, `", self::pluck($columns, 'db'))."`
 			 FROM `$table`
 			 INNER JOIN $join
-			 ON keranjang.kd_barang = tb_pakaian.kd_barang
-			 WHERE keranjang.kd_transaksi = '$where'
+			 WHERE $where
 			 $order
 			 $limit"
 		);

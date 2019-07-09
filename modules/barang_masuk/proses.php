@@ -26,6 +26,8 @@
 			// data tabel detail masuk
 			$kd_barang				= mysqli_real_escape_string($mysqli, trim($_POST['kd_barang']));
 			$kd_supplier			= mysqli_real_escape_string($mysqli, trim($_POST['kd_supplier']));
+			
+
 			$jumlah_masuk			= mysqli_real_escape_string($mysqli, trim($_POST['jumlah_masuk']));
 			$harga					= str_replace(".", "", mysqli_real_escape_string($mysqli, trim($_POST['harga'])));
 			$sub_total				= str_replace(".", "", mysqli_real_escape_string($mysqli, trim($_POST['sub_total'])));
@@ -33,11 +35,11 @@
 			$created_user	 		= $_SESSION['id_user'];
 
 			// query utk simpan dataa ke tabell keranjang
-			$insert_keranjang = mysqli_query($mysqli, "INSERT INTO keranjang (kd_transaksi, tanggal_masuk, kd_barang, kd_supplier, jumlah_masuk, harga, sub_total) VALUES ('$kd_transaksi', '$tanggal_masuk', '$kd_barang', '$kd_supplier', '$jumlah_masuk', '$harga', '$sub_total')");
+			$insert_keranjang = mysqli_query($mysqli, "INSERT INTO keranjang_masuk (kd_transaksi, tanggal_masuk, kd_barang, kd_supplier, jumlah_masuk, harga, sub_total) VALUES ('$kd_transaksi', '$tanggal_masuk', '$kd_barang', '$kd_supplier', '$jumlah_masuk', '$harga', '$sub_total')");
 
 			// cek query
 			if($insert_keranjang){
-				$query = mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+				$query = mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang_masuk WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
 				
 				$cek = mysqli_fetch_array($query);
 
@@ -50,12 +52,14 @@
 			
 			$kd_barang = $_GET['kode_barang'];
 
-			$query_pakaian 	= mysqli_query ($mysqli, "SELECT harga_jual, stok FROM tb_pakaian WHERE kd_barang = '$kd_barang'");
+			$query_pakaian 	= mysqli_query ($mysqli, "SELECT p.kd_supplier, p.harga_beli, p.stok, s.kd_supplier, s.nama_supplier FROM tb_pakaian p INNER JOIN tb_supplier s ON s.kd_supplier = p.kd_supplier WHERE p.kd_barang = '$kd_barang'");
 			$dt_harga 		= mysqli_fetch_array($query_pakaian);
 			
 			$data = array(
-				'stok'	=> $dt_harga['stok'],
-				'harga'	=> $dt_harga['harga_jual']
+				'kd_supplier'	=> $dt_harga['kd_supplier'],
+				'supplier'		=> $dt_harga['nama_supplier'],
+				'stok'			=> $dt_harga['stok'],
+				'harga'			=> $dt_harga['harga_beli']
 			);
 
 			echo json_encode($data);
@@ -65,7 +69,7 @@
 			$id_keranjang = $_GET['id'];
 
 			// query utk hapus data pd tabel pakaian
-			$query = mysqli_query ($mysqli, "DELETE FROM keranjang WHERE id_keranjang = '$id_keranjang'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+			$query = mysqli_query ($mysqli, "DELETE FROM keranjang_masuk WHERE id_keranjang = '$id_keranjang'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
 
 			// cek hasil query
 			if ($query){
@@ -75,7 +79,7 @@
 		} elseif (isset($_POST['id'])){
 			$kd_transaksi = $_POST['id'];
 
-			$query 	= mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+			$query 	= mysqli_query ($mysqli, "SELECT SUM(sub_total) AS total FROM keranjang_masuk WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
 
 			$cek 	= mysqli_fetch_array($query);
 
@@ -90,7 +94,7 @@
 			$tanggal 		= date('Y-m-d');
 
 			// ambil data keranjang
-			$query_keranjang 	= mysqli_query ($mysqli, "SELECT * FROM keranjang k INNER JOIN tb_pakaian p ON p.kd_barang = k.kd_barang  WHERE kd_transaksi = '$kd_transaksi'");
+			$query_keranjang 	= mysqli_query ($mysqli, "SELECT * FROM keranjang_masuk k INNER JOIN tb_pakaian p ON p.kd_barang = k.kd_barang  WHERE kd_transaksi = '$kd_transaksi'");
 
 			while ($dt = mysqli_fetch_array($query_keranjang)) {
 				
@@ -106,7 +110,7 @@
 			}
 
 			// hapus data keranjang
-			$hapus_keranjang = mysqli_query ($mysqli, "DELETE FROM keranjang WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
+			$hapus_keranjang = mysqli_query ($mysqli, "DELETE FROM keranjang_masuk WHERE kd_transaksi = '$kd_transaksi'") or die('Ada Kesalahan pada query delete : '.mysqli_error($mysqli));
 
 			// insert data barang masuk
 			$insert_barang_masuk = mysqli_query($mysqli, "INSERT INTO tb_barang_masuk (kd_transaksi, tanggal_masuk, sub_total) VALUES ('$kd_transaksi', '$tanggal', '$total')");

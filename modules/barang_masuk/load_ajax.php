@@ -19,9 +19,9 @@
  */
  
 // DB table to use
-$table = 'keranjang';
+$table = 'keranjang_masuk';
 
-$join = 'tb_pakaian';
+$join = 'tb_pakaian ON keranjang_masuk.kd_barang = tb_pakaian.kd_barang';
  
 // Table's primary key
 $primaryKey = 'id_keranjang';
@@ -31,11 +31,11 @@ $primaryKey = 'id_keranjang';
 // parameter represents the DataTables column identifier. In this case simple
 // indexes
 $columns = array(
-    array( 'db' => 'tanggal_masuk',  'dt' => 0 ),
-    array( 'db' => 'nama_barang',   'dt' => 1 ),
-    array( 'db' => 'jumlah_masuk',   'dt' => 2 ),
-    array( 'db' => 'sub_total',   'dt' => 3 ),
-    array( 'db' => 'id_keranjang',   'dt' => 4 )
+    array( 'db' => 'id_keranjang',   'dt' => 0 ),
+    array( 'db' => 'tanggal_masuk',  'dt' => 1 ),
+    array( 'db' => 'nama_barang',   'dt' => 2 ),
+    array( 'db' => 'jumlah_masuk',   'dt' => 3 ),
+    array( 'db' => 'sub_total',   'dt' => 4 )
     
 );
  
@@ -48,8 +48,10 @@ $sql_details = array(
 );
 
 
-$where = $_POST['code'];
+$kode = $_POST['code'];
  
+
+$where = "keranjang_masuk.kd_transaksi = '$kode'";
  
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * If you just want to use the basic configuration for DataTables with PHP
