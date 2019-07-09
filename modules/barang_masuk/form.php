@@ -115,7 +115,6 @@
 					$('#kd_supplier').val(data.kd_supplier);
 					$('#supplier').val(data.supplier);
 					$('#stok').val(data.stok);
-					$('#harga').val(formatRupiah(data.harga.toString(), ''));
 				}	
 			})
 		})
@@ -163,10 +162,18 @@
 
 		})
 
+		// ubah nominal tunai ke format rupiah ketika diketik
+		$('#harga').keyup(function(){
+			const harga 	= $(this).val().replace(/\./g,'');
+			const total 	= $('#jumlah_masuk').val();
+			const subtotal 	= parseInt(harga) * parseInt(total);
+
+			$('#sub_total').val(formatRupiah(subtotal.toString(), ''));
+		})
+
 		// proses simpan bayar
 		$('#bayar').click(function(){
 			const total = $('#total').val();
-			const tanggal = $();
 
 			$.ajax({
 				url: 'modules/barang_masuk/proses.php',
@@ -334,7 +341,7 @@
 										<div class="col-md-5">
 											<div class="input-group">
 												<span class="input-group-addon">Rp.</span>
-												<input type="text" class="form-control" id="harga" name="harga" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" readonly>
+												<input type="text" class="form-control" id="harga" name="harga" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)">
 											</div>
 										</div>
 									</div>

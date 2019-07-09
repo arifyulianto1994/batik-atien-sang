@@ -84,26 +84,6 @@
 										</div>
 									</div>
 
-									<div class="form-group">
-										<label class="col-sm-2 control-label">Harga Beli</label>
-										<div class="col-sm-5">
-											<div class="input-group">
-												<span class="input-group-addon">Rp.</span>
-												<input type="text" class="form-control" id="harga_beli" name="harga_beli" autocomplete="off" onKeyPress="return goodchars(event,'0123456789',this)" required>
-											</div>
-										</div>
-									</div>
-
-									<div class="form-group">
-										<label class="col-sm-2 control-label">Harga Jual</label>
-										<div class="col-sm-5">
-											<div class="input-group">
-												<span class="input-group-addon">Rp.</span>
-												<input type="text" class="form-control" id="harga_jual" name="harga_jual" autocomplete="off" onKeyPress="return goodchars(event, '0123456789,this>" required>
-											</div>
-										</div>
-									</div>
-
 								<!--/. box body -->
 								</div>
 

@@ -101,10 +101,10 @@
 				// insert data keranjang ke detail masuk
 				$query_detail_masuk 	= mysqli_query($mysqli, "INSERT INTO detail_masuk (kd_transaksi, tanggal_masuk, kd_barang, kd_supplier, jumlah_masuk, harga, sub_total) VALUES ('".$dt['kd_transaksi']."', '".$dt['tanggal_masuk']."', '".$dt['kd_barang']."', '".$dt['kd_supplier']."', '".$dt['jumlah_masuk']."', '".$dt['harga']."', '".$dt['sub_total']."')");
 
-				$stok = $dt['stok'] + $dt['jumlah_masuk'];
+				$stok 		= $dt['stok'] + $dt['jumlah_masuk'];
 
-				// update stok pakaian	
-				$update_pakaian = mysqli_query($mysqli, "UPDATE tb_pakaian SET stok = '".$stok."' WHERE kd_barang = '".$dt['kd_barang']."' ");
+				// update stok dan harga beli
+				$update_pakaian = mysqli_query($mysqli, "UPDATE tb_pakaian SET stok = '".$stok."', harga_beli = '".$dt['harga']."' WHERE kd_barang = '".$dt['kd_barang']."' ");
 
 				$stok = 0;
 			}
@@ -129,7 +129,7 @@
 				$temp[$i]['nama_barang'] = $dt_detail_masuk['nama_barang'];
 				$temp[$i]['kategori'] = $dt_detail_masuk['kategori'];
 				$temp[$i]['jumlah_masuk'] = $dt_detail_masuk['jumlah_masuk'];
-				$temp[$i]['harga'] = $dt_detail_masuk['harga'];
+				$temp[$i]['harga'] = number_format($dt_detail_masuk['harga'], 0,',','.');
 				
 				$i++;
 			}

@@ -20,8 +20,6 @@
 			// $nama_supplier 	= mysqli_real_escape_string($mysqli, trim($_POST['nama_supplier']));
 			$nama_barang	= mysqli_real_escape_string($mysqli, trim($_POST['nama_barang']));
 			$kategori		= mysqli_real_escape_string($mysqli, trim($_POST['kategori']));
-			$harga_beli 	= str_replace('.', '',mysqli_real_escape_string($mysqli, trim($_POST['harga_beli'])));
-			$harga_jual 	= str_replace('.', '',mysqli_real_escape_string($mysqli, trim($_POST['harga_jual'])));
 			$created_user	= $_SESSION['id_user'];
 		
 

@@ -87,7 +87,7 @@
 								</div>
 							<div class="modal-body">
 								<!-- <p>Bagian body modal</p> -->
-								<table id="dataTables1" class="table table-bordered table-striped table-hover">
+								<table id="dataTables1" class="table table-bordered table-striped table-hover text-center">
 									<thead>
 										<tr>
 											<!-- <th class="center">No.</th> -->
